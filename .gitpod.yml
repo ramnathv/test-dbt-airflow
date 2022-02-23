@@ -1,13 +1,18 @@
-image: 
-  corise/dbt-course-gitpod
-
+image: corise/dbt-course-gitpod
 tasks:
-  - name: Start postgres
+  - init: |
+      ./gitpod-init.sh
     command: |
-      sudo /etc/init.d/postgresql start 
-      mkdir -p /workspace/.dbt 
-      ln -snf /workspace/.dbt ~/.dbt
-      export PGPASSWORD=corise PGUSER=corise PGDATABASE=dbt
+      ./gitpod-command.sh
 ports:
   - port: 8000
-    onOpen: open-preview
+    onOpen: open-browser
+  - port: 8081
+    onOpen: open-browser
+  - port: 5432
+    onOpen: ignore
+vscode:
+  extensions:
+    - github.vscode-pull-request-github
+    - cweijan.vscode-database-client2
+ 
