@@ -4,6 +4,7 @@ psql -f /dbt/scripts/init.sql
 psql -d dbt -f /dbt/scripts/schema.sql
 
 export AIRFLOW_HOME=~/airflow
+export DEBIAN_FRONTEND=noninteractive
 
 # Install Airflow using the constraints file
 AIRFLOW_VERSION=2.2.4
@@ -25,8 +26,8 @@ sudo apt install --no-install-recommends software-properties-common dirmngr -y
 # Fingerprint: 298A3A825C0D65DFD57CBB651716619E084DAB9
 wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
 # add the R 4.0 repo from CRAN -- adjust 'focal' to 'groovy' or 'bionic' as needed
-sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
-sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" -y
+sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+ -y
 sudo apt install --no-install-recommends r-base -y
 sudo apt install r-base-dev -y
 sudo apt install libcurl4-openssl-dev libssl-dev libxml2-dev -y
