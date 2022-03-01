@@ -1,0 +1,199 @@
+analytics_core:
+  default_args:
+    owner: 'example_owner'
+    start_date: 2022-02-27
+    retries: 1
+    retry_delay_sec: 300
+    dir: /workspace/test-dbt-airflow/analytics
+  schedule_interval: '@daily'
+  concurrency: 1
+  max_active_runs: 1
+  dagrun_timeout_sec: 300
+  default_view: 'tree'  # or 'graph', 'duration', 'gantt', 'landing_times'
+  orientation: 'LR'  # or 'TB', 'RL', 'BT'
+  description: 'this is an example dag!'
+  task_groups:
+    dim: {}
+    fct: {}
+    mart: {}
+    metric: {}
+    wait_for_analytics_staging: {}
+    agg: {}
+    date: {}
+  tasks:
+    dim_address:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_address
+      dependencies:
+      - stg_greenery__addresses
+      task_group_name: dim
+    dim_event:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_event
+      dependencies:
+      - stg_greenery__events
+      task_group_name: dim
+    dim_order:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_order
+      dependencies:
+      - stg_greenery__orders
+      task_group_name: dim
+    dim_product:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_product
+      dependencies:
+      - stg_greenery__products
+      task_group_name: dim
+    dim_promo:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_promo
+      dependencies:
+      - stg_greenery__promos
+      task_group_name: dim
+    dim_tracking:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_tracking
+      dependencies:
+      - stg_greenery__orders
+      task_group_name: dim
+    dim_user:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: dim_user
+      dependencies:
+      - stg_greenery__users
+      task_group_name: dim
+    fct_place_order:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: fct_place_order
+      dependencies:
+      - stg_greenery__orders
+      - agg_order_items_by_order
+      task_group_name: fct
+    fct_place_order_product:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: fct_place_order_product
+      dependencies:
+      - stg_greenery__order_items
+      - stg_greenery__orders
+      task_group_name: fct
+    fct_register_event:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: fct_register_event
+      dependencies:
+      - stg_greenery__events
+      task_group_name: fct
+    fct_register_session:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: fct_register_session
+      dependencies:
+      - stg_greenery__events
+      - stg_greenery__events
+      task_group_name: fct
+    fct_user:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: fct_user
+      dependencies:
+      - stg_greenery__users
+      - agg_orders_by_user
+      - agg_events_by_user
+      task_group_name: fct
+    agg_events_by_user:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: agg_events_by_user
+      dependencies:
+      - stg_greenery__events
+      task_group_name: agg
+    agg_order_items_by_order:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: agg_order_items_by_order
+      dependencies:
+      - stg_greenery__order_items
+      task_group_name: agg
+    agg_orders_by_user:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: agg_orders_by_user
+      dependencies:
+      - stg_greenery__orders
+      task_group_name: agg
+    mart_event:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: mart_event
+      dependencies:
+      - fct_register_event
+      - dim_event
+      task_group_name: mart
+    metric_event:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: metric_event
+      dependencies:
+      - mart_event
+      - date_periods
+      task_group_name: metric
+    metric_product_conversion:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: metric_product_conversion
+      dependencies:
+      - fct_register_session
+      task_group_name: metric
+    metric_session_conversion:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: metric_session_conversion
+      dependencies:
+      - fct_register_session
+      task_group_name: metric
+    metric_session_funnel:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: metric_session_funnel
+      dependencies:
+      - mart_event
+      task_group_name: metric
+    stg_greenery__addresses:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__addresses
+      task_group_name: wait_for_analytics_staging
+    stg_greenery__events:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__events
+      task_group_name: wait_for_analytics_staging
+    stg_greenery__order_items:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__order_items
+      task_group_name: wait_for_analytics_staging
+    stg_greenery__orders:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__orders
+      task_group_name: wait_for_analytics_staging
+    stg_greenery__products:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__products
+      task_group_name: wait_for_analytics_staging
+    stg_greenery__promos:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__promos
+      task_group_name: wait_for_analytics_staging
+    stg_greenery__users:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg.stg_greenery__users
+      task_group_name: wait_for_analytics_staging
+    stg_tutorial__superheroes:
+      operator: airflow.sensors.external_task.ExternalTaskSensor
+      external_dag_id: analytics_staging
+      external_task_id: stg_tutorial.stg_tutorial__superheroes
+      task_group_name: wait_for_analytics_staging
+    date_periods:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: date_periods
+      dependencies: []
+      task_group_name: date
+    stg_greenery__addresses_rmd:
+      operator: dbt_viewflow.operators.rmd_operator.RmdOperator
+      input: "/workspace/test-dbt-airflow/dbt-greenery/models/staging/greenery/stg_greenery__test.Rmd"
+      dependencies: [stg_greenery__addresses]

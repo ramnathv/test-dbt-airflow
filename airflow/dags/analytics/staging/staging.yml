@@ -1,0 +1,58 @@
+analytics_staging:
+  default_args:
+    owner: 'example_owner'
+    start_date: 2022-02-27
+    retries: 1
+    retry_delay_sec: 300
+    dir: /workspace/test-dbt-airflow/analytics
+  schedule_interval: '@daily'
+  concurrency: 1
+  max_active_runs: 1
+  dagrun_timeout_sec: 300
+  default_view: 'tree'  # or 'graph', 'duration', 'gantt', 'landing_times'
+  orientation: 'LR'  # or 'TB', 'RL', 'BT'
+  description: 'this is an example dag!'
+  task_groups:
+    stg: {}
+    stg_tutorial: {}
+  tasks:
+    stg_greenery__addresses:
+        operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+        models: stg_greenery__addresses
+        dependencies: []
+        task_group_name: stg
+    stg_greenery__events:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_greenery__events
+      dependencies: []
+      task_group_name: stg
+    stg_greenery__order_items:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_greenery__order_items
+      dependencies: []
+      task_group_name: stg
+    stg_greenery__orders:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_greenery__orders
+      dependencies: []
+      task_group_name: stg
+    stg_greenery__products:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_greenery__products
+      dependencies: []
+      task_group_name: stg
+    stg_greenery__promos:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_greenery__promos
+      dependencies: []
+      task_group_name: stg
+    stg_greenery__users:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_greenery__users
+      dependencies: []
+      task_group_name: stg
+    stg_tutorial__superheroes:
+      operator: airflow_dbt.operators.dbt_operator.DbtRunOperator
+      models: stg_tutorial__superheroes
+      dependencies: []
+      task_group_name: stg_tutorial
