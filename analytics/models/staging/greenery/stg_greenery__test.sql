@@ -1,0 +1,1 @@
+-- depends_on: {{ ref('stg_greenery__addresses') }}

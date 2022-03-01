@@ -1,0 +1,176 @@
+version: 2
+models:
+- name: stg_greenery__addresses
+  description: >
+    Contains information about each address
+  columns:
+  - name: address_id
+    description: 'The primary key of each address'
+    tests: [not_null, unique]
+  - name: address
+    description: 'The street address'
+  - name: zipcode
+    description: 'The 5-digit zip code'
+  - name: state
+    description: 'The full name of the state'
+  - name: country
+    description: 'The full name of the country'
+- name: stg_greenery__events
+  description: >
+    Contains information about each event
+  columns:
+  - name: event_id
+    description: 'The primary key for the events table'
+    tests: [not_null]
+  - name: session_id
+    description: 'A foreign key to the sessions table'
+    tests: [not_null]
+  - name: user_id
+    description: 'A foreign key to the users table'
+    tests: [not_null]
+  - name: product_id
+    description: 'A foreign key to the products table'
+  - name: event_page_url
+    description: 'The url of the page visited'
+  - name: event_created_at
+    description: 'A timestamp for the event'
+  - name: event_type
+    description: >
+      The type of event: 
+        - account_created
+        - add_to_cart
+        - delete_from_cart
+        - checkout
+        - package_shipped
+    tests:
+      - accepted_values:
+          values: 
+            - page_view
+            - account_created
+            - add_to_cart
+            - delete_from_cart
+            - checkout
+            - package_shipped
+- name: stg_greenery__order_items
+  description: >
+    Contains information about items in an order
+  columns:
+  - name: order_id
+    description: 'The foreign key to the orders table'
+    tests: [not_null]
+  - name: product_id
+    description: 'The foreign key to the products table'
+    tests: [not_null]
+  - name: nb_items
+    description: 'The number of items ordered'
+    tests: [is_positive]
+- name: stg_greenery__orders
+  description: >
+    Contains information about each order
+  columns:
+  - name: order_id
+    description: 'The primary key identifying an order'
+    tests: 
+      - not_null
+      - unique
+      - relationships:
+           to: ref('stg_greenery__orders')
+           field: order_id
+  - name: user_id
+    description: 'A foreign key to the users table'
+    tests:
+      - not_null
+      - relationships:
+          to: ref('stg_greenery__users')
+          field: user_id
+  - name: promo_id
+    description: 'A foreign key to the promos table'
+  - name: address_id
+    description: 'A foreign key to the addresses table'
+    tests:
+      - not_null
+      - relationships:
+          to: ref('stg_greenery__addresses')
+          field: address_id
+  - name: ordered_at
+    description: 'A timestamp for when the order entry was created'
+  - name: usd_order_cost
+    description: 'The purchase cost of the order'
+    tests: [is_positive]
+  - name: usd_shipping_cost
+    description: 'This cost for shipping the order'
+    tests: [is_positive]
+  - name: usd_total_cost
+    description: 'The total cost of the order'
+    # tests: [is_positive]
+  - name: tracking_id
+    description: 'The tracking id for the shipment'
+  - name: shipping_service
+    description: 'The shipping service used'
+  - name: estimated_delivery_at
+    description: 'A timestamp for the estimated delivery'
+  - name: delivered_at
+    description: 'A timestamp for when the delivery was actually made'
+  - name: order_status
+    description: 'The status of the order'
+    tests:
+      - accepted_values:
+          values: [pending, preparing, shipped, delivered]
+- name: stg_greenery__products
+  description: >
+    Contains information about each product
+  columns:
+  - name: product_id
+    description: 'The primary key identifying the product'
+    tests:
+      - not_null
+      - unique
+  - name: name
+    description: 'The name of the product'
+  - name: usd_product_price
+    description: 'The price of the product'
+    tests: [is_positive]
+  - name: nb_items_inventory
+    description: 'The number of items of the product in inventory'
+    tests: [is_positive]
+- name: stg_greenery__promos
+  description: >
+    Contains information about promotions
+  columns:
+  - name: promo_id
+    description: 'The primary key identifying the promo'
+    tests: [not_null, unique]
+  - name: pct_discount
+    description: 'The percentage of discount provided'
+  - name: promo_status
+    description: 'The status of the promo'
+    tests:
+      - accepted_values:
+          values: [active, inactive]
+- name: stg_greenery__users
+  description: >
+    Contains information about each user
+  columns:
+  - name: user_id
+    description: 'The primary key identifying each user'
+    tests: [not_null, unique]
+  - name: address_id
+    description: 'A foreign key to the addresses table'
+  - name: first_name
+    description: 'The first name of the user'
+  - name: last_name
+    description: 'The last name of the user'
+  - name: email
+    description: 'The email of the user'
+  - name: phone_number
+    description: 'The phone number of the user'
+  - name: user_created_at
+    description: 'A timestamp for when the entry was created'
+  - name: user_updated_at
+    description: 'A timestamp for when the entry was updated'
+    tests: [not_null]
+- name: stg_greenery__test
+  description: This is an Rmd view.
+  config:
+    tags: "rmd"
+  

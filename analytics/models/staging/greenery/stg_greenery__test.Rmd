@@ -1,0 +1,15 @@
+## Scatterplots
+
+```{r}
+library(dbcooper)
+con_dbt <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  host = 'localhost',
+  dbname = 'dbt',
+  user = 'gitpod',
+  password = 'gitpod'
+)
+dbc_init(con_dbt, 'dbt')
+addresses = dbt_public_addresses()
+dplyr::copy_to(con_dbt, addresses, dbplyr::in_schema("dbt_rv", "stg_greenery__test"), temporary = FALSE)
+```

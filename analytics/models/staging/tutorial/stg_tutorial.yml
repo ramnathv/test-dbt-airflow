@@ -1,0 +1,37 @@
+version: 2
+models:
+- name: stg_tutorial__superheroes
+  description: >
+    Contains information about each superhero
+  columns:
+  - name: superhero_id
+    description: 'The unique identifier'
+  - name: name
+    description: 'The name of the superhero'
+  - name: gender
+    description: 'The gender of the superhero'
+  - name: eye_color
+    description: 'The eye color of the superhero'
+  - name: race
+    description: 'The race of the superhero'
+  - name: hair_color
+    description: 'The hair color of the superhero'
+  - name: height
+    description: 'The height of the superhero'
+    tests: [is_positive]
+  - name: publisher
+    description: 'The publisher of the comic'
+  - name: skin_color
+    description: 'The skin color of the superhero'
+  - name: alignment
+    description: 'Alignment of the superhero (good / bad)'
+  - name: weight_lbs
+    description: 'The weight of the superhero in lbs'
+    tests: [is_positive]
+  - name: weight_kgs
+    description: 'The weight of the superhero in Kgs.'
+    tests: [is_positive]
+  - name: created_at
+    description: 'A timestamp when the entry was created'
+  - name: updated_at
+    description: 'A timestamp when the entry was updated'
